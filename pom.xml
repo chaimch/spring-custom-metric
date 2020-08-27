@@ -17,9 +17,9 @@
     </parent>
 
     <modules>
-        <module>spring-custom-metric-sample</module>
-        <module>spring-custom-metric-autoconfigure</module>
         <module>sping-custom-metric-starter</module>
+        <module>spring-custom-metric-autoconfigure</module>
+        <module>spring-custom-metric-sample</module>
     </modules>
 
     <!-- 配置本地仓库: build目录下面创建 mvn-repo 用来存储本地打好的package -->

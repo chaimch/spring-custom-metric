@@ -40,7 +40,7 @@
 
         <dependency>
             <groupId>com.dayuwuxian</groupId>
-            <artifactId>spring-custom-metric-autoconfigure</artifactId>
+            <artifactId>sping-custom-metric-starter</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
