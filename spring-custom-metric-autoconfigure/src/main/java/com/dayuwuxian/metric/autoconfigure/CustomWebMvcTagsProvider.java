@@ -1,34 +1,43 @@
 package com.dayuwuxian.metric.autoconfigure;
 
 import io.micrometer.core.instrument.Tag;
-import io.micrometer.core.instrument.Tags;
-import org.springframework.boot.actuate.metrics.web.servlet.DefaultWebMvcTagsProvider;
+import io.micrometer.core.lang.NonNullApi;
+import io.micrometer.core.lang.Nullable;
+import io.micrometer.spring.web.servlet.DefaultWebMvcTagsProvider;
+import io.micrometer.spring.web.servlet.WebMvcTags;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 
+
+@NonNullApi
 public class CustomWebMvcTagsProvider extends DefaultWebMvcTagsProvider {
     @Override
-    public Iterable<Tag> getTags(HttpServletRequest request, HttpServletResponse response, Object handler, Throwable exception) {
-        Tags tags = (Tags) super.getTags(request, response, handler, exception);
+    public Iterable<Tag> httpLongRequestTags(@Nullable HttpServletRequest request, @Nullable Object handler) {
         String degradeLevelKey = "degrade_level";
-        String degradeLevelVal = request.getHeader("degrade_level");
-        if (degradeLevelVal == null){
-            degradeLevelVal = "0";
-        }
-        tags = tags.and(degradeLevelKey, degradeLevelVal);
-        return tags;
+        return Arrays.asList(WebMvcTags.method(request),
+                WebMvcTags.uri(request, null),
+                request == null || request.getHeader(degradeLevelKey) == null ?
+                        Tag.of(degradeLevelKey, "0") :
+                        Tag.of("degrade_level", request.getHeader(degradeLevelKey))
+        );
     }
 
     @Override
-    public Iterable<Tag> getLongRequestTags(HttpServletRequest request, Object handler) {
-        Tags tags = (Tags) super.getLongRequestTags(request, handler);
+    public Iterable<Tag> httpRequestTags(@Nullable HttpServletRequest request,
+                                         @Nullable HttpServletResponse response,
+                                         @Nullable Object handler,
+                                         @Nullable Throwable ex) {
         String degradeLevelKey = "degrade_level";
-        String degradeLevelVal = request.getHeader("degrade_level");
-        if (degradeLevelVal == null){
-            degradeLevelVal = "0";
-        }
-        tags = tags.and(degradeLevelKey, degradeLevelVal);
-        return tags;
+        return Arrays.asList(
+                WebMvcTags.method(request),
+                WebMvcTags.uri(request, response),
+                WebMvcTags.exception(ex),
+                WebMvcTags.status(response),
+                request == null || request.getHeader(degradeLevelKey) == null ?
+                        Tag.of(degradeLevelKey, "0") :
+                        Tag.of("degrade_level", request.getHeader(degradeLevelKey))
+        );
     }
 }
